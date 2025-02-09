@@ -19,6 +19,12 @@ class Course(models.Model):
     course_name = models.CharField(max_length=100)
     credits = models.IntegerField()
 
+class PerformanceAnalytics(models.Model):
+    student = models.ForeignKey(User, on_delete=models.CASCADE)
+    semester = models.IntegerField()
+    sgpa = models.FloatField()
+    cgpa = models.FloatField()
+    
 class Marks(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE)
     semester = models.IntegerField()
@@ -34,7 +40,36 @@ class Marks(models.Model):
     def save(self, *args, **kwargs):
         self.grade, self.grade_points = self.calculate_grade(self.marks)
         self.credit_points = self.grade_points * self.course.credits
+        
         super().save(*args, **kwargs)
+
+        # Update Performance Analytics
+        self.update_performance_analytics()
+
+    def update_performance_analytics(self):
+        """ Update SGPA for the current semester and CGPA overall. """
+        student = self.student
+        semester = self.semester
+
+        # Fetch all marks for the student in the semester
+        marks_entries = Marks.objects.filter(student=student, semester=semester)
+        total_credits = sum(entry.course.credits for entry in marks_entries)
+        total_credit_points = sum(entry.credit_points for entry in marks_entries)
+
+        # Compute SGPA
+        sgpa = total_credit_points / total_credits if total_credits > 0 else 0
+
+        # Compute CGPA
+        all_marks = Marks.objects.filter(student=student)
+        all_total_credits = sum(entry.course.credits for entry in all_marks)
+        all_total_credit_points = sum(entry.credit_points for entry in all_marks)
+        cgpa = all_total_credit_points / all_total_credits if all_total_credits > 0 else 0
+
+        # Update PerformanceAnalytics Table
+        PerformanceAnalytics.objects.update_or_create(
+            student=student, semester=semester,
+            defaults={'sgpa': round(sgpa, 2), 'cgpa': round(cgpa, 2)}
+        )
 
     @staticmethod
     def calculate_grade(marks):
@@ -59,12 +94,6 @@ class NonCreditCourse(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE)
     course_name = models.CharField(max_length=100)
     grade = models.CharField(max_length=2)
-
-class PerformanceAnalytics(models.Model):
-    student = models.ForeignKey(User, on_delete=models.CASCADE)
-    semester = models.IntegerField()
-    sgpa = models.FloatField()
-    cgpa = models.FloatField()
 
 class MentorAssignment(models.Model):
     mentor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='assigned_students')

@@ -1,0 +1,44 @@
+{% extends 'core/base.html' %} {% block scriptblock %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock scriptblock %} {% block content %}
+<canvas id="mentorChart"></canvas>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    fetch("{% url 'result_analysis' %}") // Ensure correct URL
+      .then((response) => response.json())
+      .then((data) => {
+        const ctx = document.getElementById("mentorChart").getContext("2d");
+        const studentNames = Object.keys(data.students);
+        const studentSgpaData = studentNames.map(
+          (name) => data.students[name].sgpa
+        );
+
+        new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: studentNames,
+            datasets: [
+              {
+                label: "CGPA",
+                data: studentSgpaData,
+                backgroundColor: "rgba(75, 192, 192, 0.6)",
+                borderColor: "rgba(75, 192, 192, 1)",
+                borderWidth: 1,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 10,
+              },
+            },
+          },
+        });
+      });
+  });
+</script>
+{% endblock %}

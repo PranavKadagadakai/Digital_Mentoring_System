@@ -1,5 +1,8 @@
-{% extends 'core/base.html' %} {% block content %}
-<h2>Semester-wise SGPA Trend</h2>
-<img src="data:image/png;base64,{{ graph }}" alt="SGPA Graph" />
-<a href="{% url 'export_csv' %}">Download CSV Report</a>
+{% load static %} {% extends 'core/base.html' %} {% block content %}
+<h2>Student Performance Analysis</h2>
+<canvas id="sgpaChart"></canvas>
+<p id="error-message" style="color: red; display: none"></p>
+{% endblock %} {% block scriptblock %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'js/result_analysis.js' %}"></script>
 {% endblock %}

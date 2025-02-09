@@ -17,6 +17,9 @@
 <ul>
   <a href="{% url 'grade_card' request.user.id %}">View Grade Card</a>
 </ul>
+<ul>
+  <a href="{% url 'result_analysis' %}">View Performance Analysis</a>
+</ul>
 {% elif role == 'mentor' %}
 <h3>Your Assigned Students</h3>
 <ul>
