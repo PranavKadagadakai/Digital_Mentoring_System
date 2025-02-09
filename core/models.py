@@ -57,13 +57,13 @@ class Marks(models.Model):
         total_credit_points = sum(entry.credit_points for entry in marks_entries)
 
         # Compute SGPA
-        sgpa = total_credit_points / total_credits if total_credits > 0 else 0
+        sgpa = round(total_credit_points / total_credits, 2) if total_credits else 0.0
 
         # Compute CGPA
         all_marks = Marks.objects.filter(student=student)
         all_total_credits = sum(entry.course.credits for entry in all_marks)
         all_total_credit_points = sum(entry.credit_points for entry in all_marks)
-        cgpa = all_total_credit_points / all_total_credits if all_total_credits > 0 else 0
+        cgpa = round(all_total_credit_points / all_total_credits) if all_total_credits > 0 else 0
 
         # Update PerformanceAnalytics Table
         PerformanceAnalytics.objects.update_or_create(

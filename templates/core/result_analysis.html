@@ -1,8 +1,16 @@
-{% load static %} {% extends 'core/base.html' %} {% block content %}
-<h2>Student Performance Analysis</h2>
-<canvas id="sgpaChart"></canvas>
-<p id="error-message" style="color: red; display: none"></p>
-{% endblock %} {% block scriptblock %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="{% static 'js/result_analysis.js' %}"></script>
+{% extends 'core/base.html' %} {% block content %}
+<div class="container">
+  <h2 class="text-center">Semester-wise SGPA Analysis</h2>
+  {% if graph %}
+  <div class="text-center">
+    <img
+      src="data:image/png;base64,{{ graph }}"
+      alt="SGPA Graph"
+      class="img-fluid"
+    />
+  </div>
+  {% else %}
+  <p class="text-center text-muted">No data available to generate the graph.</p>
+  {% endif %}
+</div>
 {% endblock %}

@@ -5,12 +5,12 @@ from django.contrib import messages
 from .forms import CustomUserCreationForm, ProfileUpdateForm
 from .models import Marks, Course, NonCreditCourse, User, PerformanceAnalytics, MentorAssignment
 from .utils import calculate_sgpa, calculate_cgpa
-import logging
-from django.http import HttpResponse, JsonResponse
+import matplotlib.pyplot as plt
+import io
+import base64
+import csv
+from django.http import HttpResponse
 from django.db import IntegrityError
-from django.core.exceptions import ObjectDoesNotExist
-
-logger = logging.getLogger(__name__)
 
 def register(request):
     if request.method == 'POST':
@@ -124,7 +124,7 @@ def input_marks(request):
             except IntegrityError:
                 continue  # Handle duplicate course entries gracefully
 
-        return redirect('grade_card', student_id=student.id, semester=semester)
+        return redirect('grade_card', student_id=student.id)
 
     students = User.objects.filter(role='student')
     return render(request, 'core/input_marks.html', {'students': students})
@@ -163,50 +163,61 @@ def grade_card(request, student_id = None, semester=None):
         'cgpa': round(cgpa, 2)
     })
 
+def generate_student_graph(student):
+    semesters = PerformanceAnalytics.objects.filter(student=student).order_by('semester')
+    sem_numbers = [sem.semester for sem in semesters]
+    sgpa_values = [sem.sgpa for sem in semesters]
+    
+    plt.figure(figsize=(8,5))
+    plt.bar(sem_numbers, sgpa_values, color='blue')
+    plt.xlabel('Semester')
+    plt.ylabel('SGPA')
+    plt.title(f'SGPA Trend for {student.full_name}')
+    
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
+    buf.seek(0)
+    graph = base64.b64encode(buf.getvalue()).decode('utf-8')
+    buf.close()
+    return graph
+
+def generate_mentor_graph(mentor):
+    assigned_students = MentorAssignment.objects.filter(mentor=mentor).values_list('student', flat=True)
+    students = User.objects.filter(id__in=assigned_students)
+    
+    student_names = []
+    cgpa_values = []
+    
+    for student in students:
+        analytics = PerformanceAnalytics.objects.filter(student=student).order_by('-semester').first()
+        if analytics:
+            student_names.append(student.full_name)
+            cgpa_values.append(analytics.cgpa)
+    
+    plt.figure(figsize=(8,5))
+    plt.bar(student_names, cgpa_values, color='green')
+    plt.xlabel('Students')
+    plt.ylabel('CGPA')
+    plt.title('Mentor’s Students CGPA Comparison')
+    
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
+    buf.seek(0)
+    graph = base64.b64encode(buf.getvalue()).decode('utf-8')
+    buf.close()
+    return graph
+
 @login_required
 def result_analysis(request):
     user = request.user
-    try:
-        if user.role == 'student':
-            performance_data = PerformanceAnalytics.objects.filter(student=user).order_by('semester')
-
-            if not performance_data.exists():
-                logger.warning(f"No performance data found for user: {user.username}")
-                return JsonResponse({'error': 'No performance data found'}, status=404)
-
-            data = {
-                'semesters': [p.semester for p in performance_data],
-                'sgpa': [p.sgpa for p in performance_data]
-            }
-            logger.info(f"Sending data: {data}")
-            return JsonResponse(data, content_type="application/json", safe=False)
-
-        elif user.role == 'mentor':
-            assigned_students = MentorAssignment.objects.filter(mentor=user).values_list('student', flat=True)
-            students = User.objects.filter(id__in=assigned_students)
-
-            student_data = {}
-            for student in students:
-                performance = PerformanceAnalytics.objects.filter(student=student).order_by('semester')
-                
-                if performance.exists():
-                    student_data[student.full_name] = {
-                        'semesters': [p.semester for p in performance],
-                        'sgpa': [p.sgpa for p in performance]
-                    }
-                else:
-                    logger.warning(f"No performance data for student: {student.full_name}")
-
-            if not student_data:
-                return JsonResponse({'error': 'No student performance data available'}, status=404)
-
-            logger.info(f"Sending data: {student_data}")
-            return JsonResponse({'students': student_data}, content_type="application/json", safe=False)
-
-        else:
-            logger.error(f"Unauthorized access attempt by {user.username}")
-            return JsonResponse({'error': 'Unauthorized'}, status=403)
-
-    except Exception as e:
-        logger.exception(f"Error in result_analysis view: {str(e)}")
-        return JsonResponse({'error': 'An error occurred while fetching data'}, status=500)
+    if user.role == 'student':
+        graph = generate_student_graph(user)
+        return render(request, 'core/result_analysis.html', {'graph': graph})
+    
+    elif user.role == 'mentor':
+        assigned_students = MentorAssignment.objects.filter(mentor=user).values_list('student', flat=True)
+        students = User.objects.filter(id__in=assigned_students)
+        
+        student_graphs = {student: generate_student_graph(student) for student in students}
+        mentor_graph = generate_mentor_graph(user)
+        return render(request, 'core/mentor_analysis.html', {'student_graphs': student_graphs, 'mentor_graph': mentor_graph})
