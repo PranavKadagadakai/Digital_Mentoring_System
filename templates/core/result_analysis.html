@@ -1,0 +1,5 @@
+{% extends 'core/base.html' %} {% block content %}
+<h2>Semester-wise SGPA Trend</h2>
+<img src="data:image/png;base64,{{ graph }}" alt="SGPA Graph" />
+<a href="{% url 'export_csv' %}">Download CSV Report</a>
+{% endblock %}

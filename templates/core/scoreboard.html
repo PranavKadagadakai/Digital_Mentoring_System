@@ -1,0 +1,24 @@
+{% extends 'core/base.html' %} {% block content %}
+<h1>Scoreboard</h1>
+{% for semester in semester_data %}
+<h2>Semester {{ semester.semester }}</h2>
+<p>SGPA: {{ semester.sgpa }}</p>
+<table>
+  <tr>
+    <th>Course</th>
+    <th>Marks</th>
+    <th>Grade</th>
+    <th>Grade Points</th>
+  </tr>
+  {% for course in semester.courses %}
+  <tr>
+    <td>{{ course.course.course_name }}</td>
+    <td>{{ course.marks }}</td>
+    <td>{{ course.grade }}</td>
+    <td>{{ course.grade_points }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endfor %}
+<h2>CGPA: {{ cgpa }}</h2>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends 'core/base.html' %} {% block content %}
+<h2>Welcome, {{ name }}</h2>
+{% if role == 'student' %}
+<p>USN: {{ usn }}</p>
+{% endif %}
+<p>Phone Number: {{ phone_number }}</p>
+{% if profile_photo %}
+<img src="{{ profile_photo }}" alt="Profile Photo" />
+{% endif %} {% if role == 'student' %}
+<h3>Your Scoreboard</h3>
+<ul>
+  {% for mark in scoreboard %}
+  <li>{{ mark.course.course_name }} - {{ mark.marks }} ({{ mark.grade }})</li>
+  {% endfor %}
+</ul>
+<h3>Your Grade Card</h3>
+<ul>
+  <a href="{% url 'grade_card' request.user.id %}">View Grade Card</a>
+</ul>
+{% elif role == 'mentor' %}
+<h3>Your Assigned Students</h3>
+<ul>
+  {% for student in students %}
+  <li>
+    {{ student.full_name }} ({{ student.username }})
+    <a href="{% url 'input_marks' %}">Input Marks</a>
+    <a href="{% url 'grade_card' student.id %}">View Grade Card</a>
+  </li>
+  {% endfor %}
+</ul>
+<a href="{% url 'result_analysis' %}">View Student Performance Analysis</a>
+{% elif role == 'admin' %}
+<h3>Assign Students to Mentors</h3>
+<form method="post" action="{% url 'assign_mentor' %}">
+  {% csrf_token %}
+  <label for="mentor">Select Mentor:</label>
+  <select name="mentor">
+    {% for mentor in mentors %}
+    <option value="{{ mentor.id }}">{{ mentor.username }}</option>
+    {% endfor %}
+  </select>
+  <label for="student">Select Student:</label>
+  <select name="student">
+    {% for student in students %}
+    <option value="{{ student.id }}">{{ student.username }}</option>
+    {% endfor %}
+  </select>
+  <button type="submit">Assign</button>
+</form>
+{% endif %} {% endblock %}

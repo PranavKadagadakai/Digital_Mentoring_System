@@ -1,0 +1,32 @@
+{% extends 'core/base.html' %} {% block content %}
+<h2>Grade Card - {{ student.full_name }}</h2>
+<h2>CGPA - {{ cgpa }}</h2>
+<form method="get">
+    <label for="semester">Select Semester:</label>
+    <select name="semester" id="semester" onchange="this.form.submit()">
+        {% for sem in semesters %}
+            <option value="{{ sem }}" {% if sem == selected_semester %}selected{% endif %}>Semester {{ sem }}</option>
+        {% endfor %}
+    </select>
+</form>
+<p>Semester: {{ selected_semester }}</p>
+<table>
+  <tr>
+    <th>Course</th>
+    <th>Marks</th>
+    <th>Grade</th>
+    <th>Grade Points</th>
+    <th>Credit Points</th>
+  </tr>
+  {% for mark in marks %}
+  <tr>
+    <td>{{ mark.course.course_name }}</td>
+    <td>{{ mark.marks }}</td>
+    <td>{{ mark.grade }}</td>
+    <td>{{ mark.grade_points }}</td>
+    <td>{{ mark.credit_points }}</td>
+  </tr>
+  {% endfor %}
+</table>
+<h3>SGPA: {{ sgpa }}</h3>
+{% endblock %}
