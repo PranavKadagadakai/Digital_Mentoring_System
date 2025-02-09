@@ -1,32 +1,45 @@
-{% extends 'core/base.html' %} {% block content %}
-<h2>Grade Card - {{ student.full_name }}</h2>
-<h2>CGPA - {{ cgpa }}</h2>
-<form method="get">
-    <label for="semester">Select Semester:</label>
-    <select name="semester" id="semester" onchange="this.form.submit()">
-        {% for sem in semesters %}
-            <option value="{{ sem }}" {% if sem == selected_semester %}selected{% endif %}>Semester {{ sem }}</option>
-        {% endfor %}
-    </select>
-</form>
-<p>Semester: {{ selected_semester }}</p>
-<table>
-  <tr>
-    <th>Course</th>
-    <th>Marks</th>
-    <th>Grade</th>
-    <th>Grade Points</th>
-    <th>Credit Points</th>
-  </tr>
-  {% for mark in marks %}
-  <tr>
-    <td>{{ mark.course.course_name }}</td>
-    <td>{{ mark.marks }}</td>
-    <td>{{ mark.grade }}</td>
-    <td>{{ mark.grade_points }}</td>
-    <td>{{ mark.credit_points }}</td>
-  </tr>
-  {% endfor %}
-</table>
-<h3>SGPA: {{ sgpa }}</h3>
+{% extends 'core/base.html' %} 
+{% block content %}
+<div class="grade-card-container">
+    <h2 class="text-center">Grade Card - {{ student.full_name }}</h2>
+    <h3 class="text-center text-success">CGPA: {{ cgpa }}</h3>
+
+    <form method="get" class="semester-form">
+        <label for="semester">Select Semester:</label>
+        <select name="semester" id="semester" class="form-control" onchange="this.form.submit()">
+            {% for sem in semesters %}
+                <option value="{{ sem }}" {% if sem == selected_semester %}selected{% endif %}>Semester {{ sem }}</option>
+            {% endfor %}
+        </select>
+    </form>
+
+    <p class="text-center">Selected Semester: <strong>{{ selected_semester }}</strong></p>
+
+    <div class="table-responsive">
+        <table class="table table-bordered text-center">
+            <thead class="table-dark">
+                <tr>
+                    <th>Course</th>
+                    <th>Marks</th>
+                    <th>Grade</th>
+                    <th>Grade Points</th>
+                    <th>Credit Points</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for mark in marks %}
+                    <tr>
+                        <td>{{ mark.course.course_name }}</td>
+                        <td>{{ mark.marks }}</td>
+                        <td>{{ mark.grade }}</td>
+                        <td>{{ mark.grade_points }}</td>
+                        <td>{{ mark.credit_points }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <h3 class="text-center text-primary">SGPA: {{ sgpa }}</h3>
+</div>
 {% endblock %}

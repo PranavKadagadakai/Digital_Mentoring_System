@@ -12,7 +12,6 @@ urlpatterns = [
     path('input-marks/', views.input_marks, name='input_marks'),
     path('grade-card/<int:student_id>/', views.grade_card, name='grade_card'),
     path('result-analysis/', views.result_analysis, name='result_analysis'),
-    # path('export-csv/', views.export_csv, name='export_csv'),
     path('assign-mentor/', views.assign_mentor, name='assign_mentor'),
     path('profile/', views.profile, name='profile'),
 ]

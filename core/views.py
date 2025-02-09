@@ -8,7 +8,6 @@ from .utils import calculate_sgpa, calculate_cgpa
 import matplotlib.pyplot as plt
 import io
 import base64
-import csv
 from django.http import HttpResponse
 from django.db import IntegrityError
 

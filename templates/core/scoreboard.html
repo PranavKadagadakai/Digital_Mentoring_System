@@ -1,24 +1,40 @@
 {% extends 'core/base.html' %} {% block content %}
-<h1>Scoreboard</h1>
-{% for semester in semester_data %}
-<h2>Semester {{ semester.semester }}</h2>
-<p>SGPA: {{ semester.sgpa }}</p>
-<table>
-  <tr>
-    <th>Course</th>
-    <th>Marks</th>
-    <th>Grade</th>
-    <th>Grade Points</th>
-  </tr>
-  {% for course in semester.courses %}
-  <tr>
-    <td>{{ course.course.course_name }}</td>
-    <td>{{ course.marks }}</td>
-    <td>{{ course.grade }}</td>
-    <td>{{ course.grade_points }}</td>
-  </tr>
+<div class="container">
+  <h1 class="text-center">Scoreboard</h1>
+
+  {% for semester in semester_data %}
+  <div class="card mt-4">
+    <div class="card-header">
+      <h2>Semester {{ semester.semester }}</h2>
+      <p class="mb-0"><strong>SGPA:</strong> {{ semester.sgpa }}</p>
+    </div>
+    <div class="card-body">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Course</th>
+            <th>Marks</th>
+            <th>Grade</th>
+            <th>Grade Points</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for course in semester.courses %}
+          <tr>
+            <td>{{ course.course.course_name }}</td>
+            <td>{{ course.marks }}</td>
+            <td>{{ course.grade }}</td>
+            <td>{{ course.grade_points }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
   {% endfor %}
-</table>
-{% endfor %}
-<h2>CGPA: {{ cgpa }}</h2>
+
+  <div class="text-center mt-4">
+    <h2><strong>CGPA:</strong> {{ cgpa }}</h2>
+  </div>
+</div>
 {% endblock %}
