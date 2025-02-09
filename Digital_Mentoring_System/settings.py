@@ -127,25 +127,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 ## MANUAL CHANGES
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-# STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 AUTH_USER_MODEL = 'core.User'
-
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'handlers': {
-#         'file': {
-#             'level': 'WARNING',
-#             'class': 'logging.FileHandler',
-#             'filename': 'django_errors.log',
-#         },
-#     },
-#     'loggers': {
-#         'django': {
-#             'handlers': ['file'],
-#             'level': 'WARNING',
-#             'propagate': True,
-#         },
-#     },
-# }
